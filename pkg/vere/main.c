@@ -67,7 +67,7 @@ _main_self_path(void)
 
 /* _main_readw(): parse a word from a string.
 */
-static c3_o
+static c3_t
 _main_readw(const c3_c* str_c, c3_w max_w, c3_w* out_w)
 {
   c3_c* end_c;
@@ -75,9 +75,9 @@ _main_readw(const c3_c* str_c, c3_w max_w, c3_w* out_w)
 
   if ( *str_c != '\0' && *end_c == '\0' && par_w < max_w ) {
     *out_w = par_w;
-    return c3y;
+    return 0;
   }
-  else return c3n;
+  else return 1;
 }
 
 /* _main_readw_loom(): parse loom pointer bit size from a string.
@@ -86,8 +86,8 @@ static c3_i
 _main_readw_loom(const c3_c* arg_c, c3_y* out_y)
 {
   c3_w lom_w;
-  c3_o res_o = _main_readw(optarg, u3a_bits_max + 1, &lom_w);
-  if ( res_o == c3n || (lom_w < 20) ) {
+  c3_t res_t = _main_readw(optarg, u3a_bits_max + 1, &lom_w);
+  if ( res_t || (lom_w < 20) ) {
     fprintf(stderr, "error: --%s must be >= 20 and <= %zu\r\n", arg_c, u3a_bits_max);
     return -1;
   }
@@ -220,12 +220,11 @@ _main_pier_run(c3_c* bin_c)
 
 /* _main_getopt(): extract option map from command line.
 */
-static u3_noun
+static c3_t
 _main_getopt(c3_i argc, c3_c** argv)
 {
   c3_i ch_i, lid_i;
   c3_w arg_w;
-  c3_o want_creat_o = c3n;
 
   static struct option lop_u[] = {
     { "arvo",                required_argument, NULL, 'A' },
@@ -366,8 +365,8 @@ _main_getopt(c3_i argc, c3_c** argv)
         break;
       }
       case 'C': {
-        if ( c3n == _main_readw(optarg, 1000000000, &u3_Host.ops_u.hap_w) ) {
-          return c3n;
+        if ( _main_readw(optarg, 1000000000, &u3_Host.ops_u.hap_w) ) {
+          return 1;
         }
         u3C.hap_w = u3_Host.ops_u.hap_w;
         break;
@@ -408,8 +407,8 @@ _main_getopt(c3_i argc, c3_c** argv)
         break;
       }
       case 'K': {
-        if ( c3n == _main_readw(optarg, 256, &u3_Host.ops_u.kno_w) ) {
-          return c3n;
+        if ( _main_readw(optarg, 256, &u3_Host.ops_u.kno_w) ) {
+          return 1;
         }
         break;
       }
@@ -429,14 +428,14 @@ _main_getopt(c3_i argc, c3_c** argv)
         break;
       }
       case 'p': {
-        if ( c3n == _main_readw(optarg, 65536, &arg_w) ) {
-          return c3n;
+        if ( _main_readw(optarg, 65536, &arg_w) ) {
+          return 1;
         } else u3_Host.ops_u.por_s = arg_w;
         break;
       }
       case 'R': {
         u3_Host.ops_u.rep = c3y;
-        return c3y;
+        return 0;
       }
       case 'r': {
         u3_Host.ops_u.roc_c = strdup(optarg);
@@ -485,7 +484,7 @@ _main_getopt(c3_i argc, c3_c** argv)
       //  unknown opt
       //
       case '?': default: {
-        return c3n;
+        return 1;
       }
     }
   }
@@ -493,14 +492,14 @@ _main_getopt(c3_i argc, c3_c** argv)
 #if !defined(U3_OS_PROF)
   if (u3_Host.ops_u.pro == c3y) {
     fprintf(stderr, "profiling isn't yet supported on your OS\r\n");
-    return c3n;
+    return 1;
   }
 #endif
 
   if ( 0 != u3_Host.ops_u.fak_c ) {
     if ( 28 < strlen(u3_Host.ops_u.fak_c) ) {
       fprintf(stderr, "fake comets are forbidden\r\n");
-      return c3n;
+      return 1;
     }
     if ( 0 != u3_Host.ops_u.who_c ) {
       fprintf(stderr, "-F and -w cannot be used together\r\n");
@@ -563,7 +562,7 @@ _main_getopt(c3_i argc, c3_c** argv)
 
   if ( u3_Host.ops_u.nuu != c3y && u3_Host.ops_u.pil_c != 0 ) {
     fprintf(stderr, "-B only makes sense when creating a new ship\n");
-    return c3n;
+    return 1;
   }
 
   if ( u3_Host.ops_u.nuu != c3y && u3_Host.ops_u.gen_c != 0 ) {
@@ -588,7 +587,7 @@ _main_getopt(c3_i argc, c3_c** argv)
 
   if ( u3_Host.ops_u.url_c != 0 && u3_Host.ops_u.pil_c != 0 ) {
     fprintf(stderr, "-B and -u cannot be used together\n");
-    return c3n;
+    return 1;
   }
   else if ( u3_Host.ops_u.nuu == c3y
            && u3_Host.ops_u.url_c == 0
@@ -608,7 +607,7 @@ _main_getopt(c3_i argc, c3_c** argv)
                           version_c);
     if ( res_i < 0 ) {
       fprintf(stderr, "failed to construct pill URL\n");
-      return c3n;
+      return 1;
     }
   }
   else if ( u3_Host.ops_u.nuu == c3y
@@ -617,14 +616,14 @@ _main_getopt(c3_i argc, c3_c** argv)
 
     // implicitly: u3_Host.ops_u.git == c3y
     fprintf(stderr, "-s only makes sense with -A\n");
-    return c3n;
+    return 1;
   }
 
   if ( u3_Host.ops_u.pil_c != 0 ) {
     struct stat s;
     if ( stat(u3_Host.ops_u.pil_c, &s) != 0 ) {
       fprintf(stderr, "pill %s not found\n", u3_Host.ops_u.pil_c);
-      return c3n;
+      return 1;
     }
   }
 
@@ -638,11 +637,11 @@ _main_getopt(c3_i argc, c3_c** argv)
     struct stat s;
     if ( stat(u3_Host.ops_u.key_c, &s) != 0 ) {
       fprintf(stderr, "keyfile %s not found\n", u3_Host.ops_u.key_c);
-      return c3n;
+      return 1;
     }
   }
 
-  return c3y;
+  return 0;
 }
 
 /* _cert_store: decoded CA certificates
@@ -1312,10 +1311,10 @@ _cw_eval(c3_i argc, c3_c* argv[])
   u3_mojo std_u;
   c3_i    ch_i, lid_i;
   c3_w    arg_w;
-  c3_o    cue_o = c3n;
-  c3_o    jam_o = c3n;
-  c3_o    kan_o = c3n;
-  c3_o    new_o = c3n;
+  c3_t    cue_t = 0;
+  c3_t    jam_t = 0;
+  c3_t    kan_t = 0;
+  c3_t    new_t = 0;
 
   static struct option lop_u[] = {
     { "loom", required_argument,  NULL, c3__loom },
@@ -1335,19 +1334,19 @@ _cw_eval(c3_i argc, c3_c* argv[])
       } break;
 
       case 'c': {
-        cue_o = c3y;
+        cue_t = 1;
       } break;
 
       case 'j': {
-        jam_o = c3y;
+        jam_t = 1;
       } break;
 
       case 'k': {
-        kan_o = c3y;
+        kan_t = 1;
       } break;
 
       case 'n': {
-        new_o = c3y;
+        new_t = 1;
       } break;
 
       case '?': {
@@ -1359,15 +1358,15 @@ _cw_eval(c3_i argc, c3_c* argv[])
 
   //  cannot have both jam and cue set
   //
-  if ( ( c3y == cue_o ) && ( c3y == jam_o ) ) {
+  if ( cue_t && jam_t ) {
     fprintf(stderr, "cannot enable both jam and cue\r\n");
     exit(1);
   }
   //  newt meaningless without jam or cue set
   //
-  if ( ( c3y == new_o ) && ( c3n == cue_o ) && ( c3n == jam_o) ) {
+  if ( new_t && !cue_t && !jam_t ) {
     fprintf(stderr, "newt meaningless w/o jam or cue; ignoring\r\n");
-    new_o = c3n;
+    new_t = 0;
   }
   //  argv[optind] is always "eval"
   //
@@ -1411,25 +1410,25 @@ _cw_eval(c3_i argc, c3_c* argv[])
   }
 
   fprintf(stderr, "eval (");
-  if ( c3y == cue_o ) {
+  if ( cue_t ) {
     fprintf(stderr, "cue");
-  } else if ( c3y == jam_o ) {
+  } else if ( jam_t ) {
     fprintf(stderr, "jam");
   } else {
     fprintf(stderr, "run");
   }
-  if ( c3y == new_o ) {
+  if ( new_t ) {
     fprintf(stderr, ", newt");
   }
   fprintf(stderr,"):\n");
 
   //  cue input and pretty-print on stdout
   //
-  if ( c3y == cue_o ) {
+  if ( cue_t ) {
     c3_d    len_d;
     c3_y*   byt_y;
     u3_weak som;
-    if ( c3n == new_o ) {
+    if ( !new_t ) {
       fprintf(stderr, "cue only supports newt encoding (for now)\n");
       exit(1);
     }
@@ -1442,7 +1441,7 @@ _cw_eval(c3_i argc, c3_c* argv[])
     c3_c* pre_c;
     u3k(som);
     //  if input is jammed khan output
-    if ( c3y == kan_o ) {
+    if ( kan_t ) {
       u3_noun cop, uid, mar, res, tan;
       u3x_qual(som, &uid, &mar, &res, &tan);
       //  and if result is a goof
@@ -1464,7 +1463,7 @@ _cw_eval(c3_i argc, c3_c* argv[])
   }
   //  jam input and return on stdout
   //
-  else if ( c3y == jam_o ) {
+  else if ( jam_t ) {
     c3_d    bits = 0;
     c3_d    len_d = 0;
     c3_c*   evl_c = _cw_eval_get_string(stdin, 10);
@@ -1473,7 +1472,7 @@ _cw_eval(c3_i argc, c3_c* argv[])
     u3_noun res = u3m_soft(0, u3v_wish_n, sam);
     if ( 0 == u3h(res) ) {                //  successful execution, print output
       bits = u3s_jam_xeno(u3t(res), &len_d, &byt_y);
-      if ( c3y == new_o ) {
+      if ( new_t ) {
         u3_newt_send(&std_u, len_d, byt_y);
       } else {
         for ( size_t p=0; p < len_d; p++ ) {
@@ -1737,9 +1736,9 @@ _cw_cram(c3_i argc, c3_c* argv[])
     exit(1);
   }
 
-  u3_Host.eve_d = u3m_boot(u3_Host.dir_c, (size_t)1 << u3_Host.ops_u.lom_y);
-  u3_disk* log_u = _cw_disk_init(u3_Host.dir_c); // XX s/b try_aquire lock
-  c3_o  ret_o;
+  c3_d      eve_d = u3m_boot(u3_Host.dir_c, (size_t)1 << u3_Host.ops_u.lom_y);
+  u3_disk*  log_u = _cw_disk_init(u3_Host.dir_c); // XX s/b try_aquire lock
+  c3_o      ret_o;
 
   fprintf(stderr, "urbit: cram: preparing\r\n");
 
@@ -2920,7 +2919,7 @@ main(c3_i   argc,
     //  no matching subcommand, parse arguments
     //
     case 0: {
-      if ( c3n == _main_getopt(argc, argv) ) {
+      if ( _main_getopt(argc, argv) ) {
         u3_ve_usage(argc, argv);
         return 1;
       }
