@@ -123,20 +123,20 @@ _main_repath(c3_c* pax_c)
   c3_i  wit_i;
 
   u3_assert(pax_c);
-  if ( 0 != (rel_c = realpath(pax_c, 0)) ) {
+  if ( 0 != (rel_c = realpath(pax_c, 0)) ) {  // get canonical path; if no errors, return it
     return rel_c;
   }
-  fas_c = strrchr(pax_c, '/');
-  if ( !fas_c ) {
+  fas_c = strrchr(pax_c, '/');  // If there was an error, get the final occurrance of '/'
+  if ( !fas_c ) {               // If it doesn't occur in the string (i.e. path = "/something"), modify the path to "./something" and try again
     c3_c rec_c[2048];
 
     wit_i = snprintf(rec_c, sizeof(rec_c), "./%s", pax_c);
     u3_assert(sizeof(rec_c) > wit_i);
     return _main_repath(rec_c);
   }
-  u3_assert(u3_unix_cane(fas_c + 1));
+  u3_assert(u3_unix_cane(fas_c + 1)); // Assert there are no "." or ".." in the intermediate path (i.e. path doesn't have form "/some/path/./..")
   *fas_c = 0;
-  dir_c = realpath(pax_c, 0);
+  dir_c = realpath(pax_c, 0); // Try processing the path up to just the final '/' (e.g. process "/some/path/like/this" as "/some/path/like")
   *fas_c = '/';
   if ( 0 == dir_c ) {
     return 0;
@@ -185,7 +185,8 @@ _main_init(void)
   u3_Host.ops_u.hap_w = 50000;
   u3_Host.ops_u.kno_w = DefaultKernel;
 
-  u3_Host.ops_u.sap_w = 120;    /* aka 2 minutes */
+  // u3_Host.ops_u.sap_w = 120;    /* aka 2 minutes */
+  u3_Host.ops_u.sap_w = 1200000;
   u3_Host.ops_u.lut_y = 31;     /* aka 2G */
   u3_Host.ops_u.lom_y = 31;
 

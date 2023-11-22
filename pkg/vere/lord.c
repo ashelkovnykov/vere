@@ -246,6 +246,7 @@ _lord_plea_foul(u3_lord* god_u, c3_m mot_m, u3_noun dat)
 static void
 _lord_plea_live(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "\rlord: $plea live\n");
   u3_writ* wit_u = _lord_writ_pop(god_u);
 
   if( u3_nul != dat ) {
@@ -254,6 +255,7 @@ _lord_plea_live(u3_lord* god_u, u3_noun dat)
 
   switch ( wit_u->typ_e ) {
     default: {
+    // fprintf(stderr, "lord: $plea $live unknown writ\r\n");
       return _lord_plea_foul(god_u, c3__live, dat);
     } break;
 
@@ -286,8 +288,9 @@ _lord_plea_live(u3_lord* god_u, u3_noun dat)
 static void
 _lord_plea_ripe(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "\rlord: $plea ripe\n");
   if ( c3y == god_u->liv_o ) {
-    fprintf(stderr, "lord: received unexpected %%ripe\n");
+    // fprintf(stderr, "lord: received unexpected %%ripe\n");
     _lord_bail(god_u);
     return;
   }
@@ -306,6 +309,7 @@ _lord_plea_ripe(u3_lord* god_u, u3_noun dat)
        || (c3n == u3r_safe_chub(eve, &eve_d))
        || (c3n == u3r_safe_word(mug, &mug_l)) )
     {
+    // fprintf(stderr, "lord: $plea $ripe\r\n");
       return _lord_plea_foul(god_u, c3__ripe, dat);
     }
 
@@ -332,20 +336,31 @@ _lord_plea_ripe(u3_lord* god_u, u3_noun dat)
 static void
 _lord_plea_slog(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "\rlord: $plea slog\n");
   u3_noun pri, tan;
   c3_w pri_w;
 
-  if (  (c3n == u3r_cell(dat, &pri, &tan))
-     || (c3n == u3r_safe_word(pri, &pri_w)) )
+  // fprintf(stderr, "lord: incoming slog\r\n");
+  c3_o c1 = u3r_cell(dat, &pri, &tan);
+  c3_o c2 = u3r_safe_word(pri, &pri_w);
+  // fprintf(stderr, "\r%u\n", c1);
+  // fprintf(stderr, "\r%u\n", c2);
+
+  if (  (c3n == c1)
+     || (c3n == c2) )
   {
+    // fprintf(stderr, "lord: $plea slog foul\r\n");
     return _lord_plea_foul(god_u, c3__slog, dat);
   }
 
   //  XX per-writ slog_f?
   //
 
+  // fprintf(stderr, "lord: slog a\r\n");
   god_u->cb_u.slog_f(god_u->cb_u.ptr_v, pri_w, u3k(tan));
+  // fprintf(stderr, "lord: slog b\r\n");
   u3z(dat);
+  // fprintf(stderr, "lord: slog over\r\n");
 }
 
 /* _lord_plea_flog(): hear serf debug output
@@ -353,9 +368,11 @@ _lord_plea_slog(u3_lord* god_u, u3_noun dat)
 static void
 _lord_plea_flog(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "lord: $plea flog\r\n");
   u3_pier* pir_u = god_u->cb_u.ptr_v;
 
   if ( c3n == u3a_is_atom(dat) ) {
+    // fprintf(stderr, "lord: $plea $flog dat not atom\r\n");
     return _lord_plea_foul(god_u, c3__flog, dat);
   }
 
@@ -414,6 +431,7 @@ _lord_plea_peek_done(u3_lord* god_u, u3_peek* pek_u, u3_noun rep)
 static void
 _lord_plea_peek(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "\rlord: $plea peek\n");
   u3_peek* pek_u;
   {
     u3_writ* wit_u = _lord_writ_need(god_u, u3_writ_peek);
@@ -422,11 +440,13 @@ _lord_plea_peek(u3_lord* god_u, u3_noun dat)
   }
 
   if ( c3n == u3a_is_cell(dat) ) {
+    // fprintf(stderr, "lord: $plea $peek dat not cell\r\n");
     return _lord_plea_foul(god_u, c3__peek, dat);
   }
 
   switch ( u3h(dat) ) {
     default: {
+    // fprintf(stderr, "lord: $plea $peek\r\n");
       return _lord_plea_foul(god_u, c3__peek, dat);
     }
 
@@ -493,6 +513,7 @@ _lord_plea_play_done(u3_lord* god_u, u3_info fon_u, u3_noun dat)
 static void
 _lord_plea_play(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "\rlord: $plea play\n");
   u3_info fon_u;
   {
     u3_writ* wit_u = _lord_writ_need(god_u, u3_writ_play);
@@ -501,11 +522,13 @@ _lord_plea_play(u3_lord* god_u, u3_noun dat)
   }
 
   if ( c3n == u3a_is_cell(dat) ) {
+    // fprintf(stderr, "lord: $plea $play dat not cell\r\n");
     return _lord_plea_foul(god_u, c3__play, dat);
   }
 
   switch ( u3h(dat) ) {
     default: {
+    // fprintf(stderr, "lord: $plea $play\r\n");
       return _lord_plea_foul(god_u, c3__play, dat);
     }
 
@@ -593,14 +616,19 @@ _lord_plea_work_swap(u3_lord* god_u, u3_ovum* egg_u, u3_noun dat)
   c3_d eve_d;
   c3_l mug_l;
 
-  if (  (c3n == u3r_qual(dat, &eve, &mug, &job, &act))
-     || (c3n == u3r_safe_chub(eve, &eve_d))
-     || (c3n == u3r_safe_word(mug, &mug_l))
-     || (c3n == u3a_is_cell(job)) )
+  c3_o c1 = u3r_qual(dat, &eve, &mug, &job, &act);
+  c3_o c2 = u3r_safe_chub(eve, &eve_d);
+  c3_o c3 = u3r_safe_word(mug, &mug_l);
+  c3_o c4 = u3a_is_cell(job);
+
+  // if (  (c3n == u3r_qual(dat, &eve, &mug, &job, &act))
+  //    || (c3n == u3r_safe_chub(eve, &eve_d))
+  //    || (c3n == u3r_safe_word(mug, &mug_l))
+  //    || (c3n == u3a_is_cell(job)) )
+  if ( c3n == c1 || c3n == c2 || c3n == c3 || c3n == c4)
   {
     u3z(job);
     u3_ovum_free(egg_u);
-    fprintf(stderr, "lord: invalid %%work\r\n");
     return _lord_plea_foul(god_u, c3__swap, dat);
   }
   else {
@@ -643,6 +671,7 @@ _lord_plea_work_done(u3_lord* god_u,
 static void
 _lord_plea_work(u3_lord* god_u, u3_noun dat)
 {
+  // fprintf(stderr, "\rlord: $plea $work\n");
   u3_ovum* egg_u;
   u3_noun    job;
 
@@ -656,6 +685,7 @@ _lord_plea_work(u3_lord* god_u, u3_noun dat)
   if ( c3n == u3a_is_cell(dat) ) {
     u3z(job);
     u3_ovum_free(egg_u);
+    // fprintf(stderr, "lord: $plea $work dat not cell\r\n");
     return _lord_plea_foul(god_u, c3__work, dat);
   }
 
@@ -663,19 +693,23 @@ _lord_plea_work(u3_lord* god_u, u3_noun dat)
     default: {
       u3z(job);
       u3_ovum_free(egg_u);
+      // fprintf(stderr, "lord: $plea $work foul\r\n");
       return _lord_plea_foul(god_u, c3__work, dat);
     } break;
 
     case c3__done: {
+      // fprintf(stderr, "lord: $plea $work done\r\n");
       _lord_plea_work_done(god_u, egg_u, job, u3k(u3t(dat)));
     } break;
 
     case c3__swap: {
+      // fprintf(stderr, "lord: $plea $work swap\r\n");
       u3z(job);
       _lord_plea_work_swap(god_u, egg_u, u3k(u3t(dat)));
     } break;
 
     case c3__bail: {
+      // fprintf(stderr, "lord: $plea $work bail\r\n");
       u3z(job);
       _lord_plea_work_bail(god_u, egg_u, u3k(u3t(dat)));
     } break;
@@ -702,16 +736,19 @@ _lord_on_plea(void* ptr_v, c3_d len_d, c3_y* byt_y)
 #ifdef LORD_TRACE_CUE
   u3t_event_trace("king ipc cue", 'E');
 #endif
+  // fprintf(stderr, "\rlord: incoming $plea; len = %lu\n", len_d);
+  c3_o c = u3r_cell(jar, &tag, &dat);
 
   if ( u3_none == jar ) {
     return _lord_plea_foul(god_u, 0, u3_blip);
   }
-  else if ( c3n == u3r_cell(jar, &tag, &dat) ) {
+  else if ( c3n == c ) {
     return _lord_plea_foul(god_u, 0, jar);
   }
 
   switch ( tag ) {
     default: {
+      // fprintf(stderr, "\rlord: $plea foul\n");
       return _lord_plea_foul(god_u, 0, jar);
     }
 
@@ -1183,7 +1220,8 @@ u3_lord_init(c3_c* pax_c, c3_w wag_w, c3_d key_d[4], u3_lord_cb cb_u)
 
     sprintf(tos_c, "%u", u3C.tos_w);
 
-    arg_c[0] = god_u->bin_c;            //  executable
+    // arg_c[0] = god_u->bin_c;            //  executable
+    arg_c[0] = "/home/ashelkov/Repos/Urbit/Core/ares/rust/ares/target/debug/ares";  // gotta call the ares serf
     arg_c[1] = "serf";                  //  protocol
     arg_c[2] = god_u->pax_c;            //  path to checkpoint directory
     arg_c[3] = key_c;                   //  disk key

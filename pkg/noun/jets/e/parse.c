@@ -95,7 +95,9 @@
   {
     u3_noun p_vex, q_vex;
 
+    // decompose vex into the head and tail
     u3x_cell(vex, &p_vex, &q_vex);
+    // if the tail is null, return early
     if ( c3n == u3du(q_vex) ) {
       return u3k(vex);
     } else {
@@ -347,7 +349,9 @@
   {
     u3_noun p_vex, q_vex;
 
+    // decompose vex into hair and result
     u3x_cell(vex, &p_vex, &q_vex);
+    // if result null, exit early
     if ( c3n == u3du(q_vex) ) {
       return u3k(vex);
     }
@@ -359,11 +363,14 @@
       u3_noun ret;
 
       u3x_cell(uq_vex, &puq_vex, &quq_vex);
+      // try to parse the separator
       yit = u3x_good(u3n_slam_on(u3k(bus), u3k(quq_vex)));
 
+      // decompose separator parsing result
       u3x_cell(yit, &p_yit, &q_yit);
       yur = _last(p_vex, p_yit);
 
+      // if parsing failed, exit early
       if ( c3n == u3du(q_yit) ) {
         ret = u3nc(yur, u3_nul);
       }
@@ -372,19 +379,23 @@
         u3_noun puq_yit, quq_yit;
         u3_noun wam, p_wam, q_wam, goy;
 
+        // try to parse the actual rule
         u3x_cell(uq_yit, &puq_yit, &quq_yit);
         wam = u3x_good(u3n_slam_on(u3k(sab), u3k(quq_yit)));
 
+        // decompose rule parsing result
         u3x_cell(wam, &p_wam, &q_wam);
         goy = _last(yur, p_wam);
         u3z(yur);
 
+        // if parsing failed, exit early
         if ( c3n == u3du(q_wam) ) {
           ret = u3nc(goy, u3_nul);
         } else {
           u3_noun uq_wam = u3t(q_wam);
           u3_noun puq_wam, quq_wam;
 
+          // Otherwise, concat the parsing result to the input edge
           u3x_cell(uq_wam, &puq_wam, &quq_wam);
           ret = u3nq(goy,
                      u3_nul,
@@ -826,6 +837,10 @@
 
 /* stew
 */
+
+  // This doesn't exactly match up with the wor in +stew in hoon.hoon, since
+  // we're not using it to build the map and therefore never have ort as a
+  // range input.
   static u3_noun
   _stew_wor(u3_noun ort,
             u3_noun wan)

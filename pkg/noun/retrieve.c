@@ -1352,28 +1352,45 @@ u3r_words(c3_w    a_w,
   u3_assert(u3_none != d);
   u3_assert(_(u3a_is_atom(d)));
 
+  // exit early if not copying any words
   if ( b_w == 0 ) {
     return;
   }
+  //  if input is direct atom...
   if ( _(u3a_is_cat(d)) ) {
+    //  if copying starting from first index...
     if ( a_w == 0 ) {
+      //  value at ptr is atom value
       *c_w = d;
+      //  fill the rest of the space with 0
       memset((c3_y*)(c_w + 1), 0, (b_w - 1) << 2);
     }
+    //  if copying starting from any other index...
     else {
+      //  fill all of the space with 0
       memset((c3_y*)c_w, 0, b_w << 2);
     }
   }
+  //  if input is indirect atom...
   else {
     u3a_atom* d_u = u3a_to_ptr(d);
+    //  if starting index is beyond the end of the noun...
     if ( a_w >= d_u->len_w ) {
+      //  fill all of the space with 0s
       memset((c3_y*)c_w, 0, b_w << 2);
     }
+    //  if starting index is not beyond the end of the noun...
     else {
+      //  get minimum of words to copy and number of words in noun beyond starting index
       c3_w z_w = c3_min(b_w, d_u->len_w - a_w);
+      //  get destination
       c3_w* x_w = d_u->buf_w + a_w;
+      //  memcpy words
       memcpy((c3_y*)c_w, (c3_y*)x_w, z_w << 2);
+      //  if there's more words to copy than data words in noun...
+      //    NB: should be   b_w > z_w?
       if ( b_w > d_u->len_w - a_w ) {
+        //  fill the rest of the space with 0
         memset((c3_y*)(c_w + z_w), 0, (b_w + a_w - d_u->len_w) << 2);
       }
     }

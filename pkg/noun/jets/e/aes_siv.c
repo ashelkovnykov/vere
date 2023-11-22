@@ -20,15 +20,20 @@ _cqea_measure_ads(u3_noun ads, c3_w* soc_w, c3_w *mat_w, c3_w *dat_w)
   u3_noun i, t;
   c3_w a_w, b_w, tmp_w;
 
+  //  init a & b to 0; loop until end of list of atoms; count number atoms
   for ( a_w = b_w = 0, t = ads; u3_nul != t; ++a_w ) {
+    //  read head and tail of list
     u3x_cell(t, &i, &t);
+    //  if head is not an atom, bail
     if ( c3n == u3ud(i) ) {
       u3m_bail(c3__exit);
       return;
     }
     else {
       tmp_w = b_w;
+      //  add byte length of atom to count
       b_w += u3r_met(3, i);
+      //  bail on overflow
       if ( b_w < tmp_w ) {
         u3m_bail(c3__fail);
         return;
@@ -41,11 +46,14 @@ _cqea_measure_ads(u3_noun ads, c3_w* soc_w, c3_w *mat_w, c3_w *dat_w)
   if ( (tmp_w / a_w) != sizeof(urcrypt_aes_siv_data) ) {
     u3m_bail(c3__fail);
   }
+  // dat_w = total size of atoms and aes_siv_data
   else if ( (*dat_w = tmp_w + b_w) < tmp_w ) {
     u3m_bail(c3__fail);
   }
   else {
+    // soc_w = # atoms (length of list)
     *soc_w = a_w;
+    // mat_w = size of aes_siv_data array
     *mat_w = tmp_w;
   }
 }
@@ -59,14 +67,21 @@ _cqea_encode_ads(u3_noun ads,
   c3_w met_w;
   u3_noun i, t;
   urcrypt_aes_siv_data *cur_u;
+  //  pointer to atom zone, behind aes_siv_data array
   c3_y *dat_y = ((c3_y*) dat_u) + mat_w;
 
+  //  treat dat_u as aes_siv_data array and cur_u as cursor; loop until list empty
   for ( cur_u = dat_u, t = ads; u3_nul != t; t = u3t(t), ++cur_u ) {
+    //  get next atom
     i = u3h(t);
+    //  measure atom
     met_w = u3r_met(3, i);
+    //  write bytes to atom slot
     u3r_bytes(0, met_w, dat_y, i);
+    //  add atom metadata to aes_siv_data array slot
     cur_u->length = met_w;
     cur_u->bytes = dat_y;
+    //  move atom array cursor forward
     dat_y += met_w;
   }
 }
@@ -82,6 +97,7 @@ _cqea_ads_free(urcrypt_aes_siv_data *dat_u)
 static urcrypt_aes_siv_data*
 _cqea_ads_alloc(u3_noun ads, c3_w *soc_w)
 {
+  //  if the list is empty from the beginning, return NULL
   if ( !ads ) {
     *soc_w = 0;
     return NULL;
@@ -90,9 +106,13 @@ _cqea_ads_alloc(u3_noun ads, c3_w *soc_w)
     c3_w mat_w, dat_w;
     urcrypt_aes_siv_data *dat_u;
 
+    //  measure the input list of atoms
     _cqea_measure_ads(ads, soc_w, &mat_w, &dat_w);
+    //  allocate space for atoms + aes_siv_data
     dat_u = u3a_malloc(dat_w);
+    //  copy atom list data to aes_siv_data array
     _cqea_encode_ads(ads, mat_w, dat_u);
+    //  return allocated data
     return dat_u;
   }
 }
@@ -126,15 +146,16 @@ _cqea_siv_en(c3_y*   key_y,
 }
 
 static u3_noun
-_cqea_siv_de(c3_y*   key_y,
-             c3_w    key_w,
-             u3_noun ads,
+_cqea_siv_de(c3_y*   key_y,   //  key as byte array
+             c3_w    key_w,   //  length of key byte array
+             u3_noun ads,     //  list of atoms
              u3_atom iv,
              u3_atom len,
              u3_atom txt,
              urcrypt_siv low_f)
 {
   c3_w txt_w;
+  //  check that len is a direct atom and get its value
   if ( !u3r_word_fit(&txt_w, len) ) {
     return u3m_bail(c3__fail);
   }
@@ -144,8 +165,11 @@ _cqea_siv_de(c3_y*   key_y,
     c3_y *txt_y, *out_y, iv_y[16];
     urcrypt_aes_siv_data *dat_u;
 
+    //  copy the first 16 bytes of iv into the buffer
     u3r_bytes(0, 16, iv_y, iv);
+    //  copy atom list data to array
     dat_u = _cqea_ads_alloc(ads, &soc_w);
+    //  copy txt data
     txt_y = u3r_bytes_alloc(0, txt_w, txt);
     out_y = u3a_malloc(txt_w);
 

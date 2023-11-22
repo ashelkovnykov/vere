@@ -273,3 +273,10 @@ GTAGS
 /nel
 /nev
 /fes
+
+# IDE
+.idea
+.vscode
+
+# Convenience
+tst-vere

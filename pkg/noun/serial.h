@@ -49,14 +49,14 @@
         u3_cue_xeno*
         u3s_cue_xeno_init(void);
 
-      /* u3s_cue_xeno_init(): cue on-loom, with off-loom dictionary in handle.
+      /* u3s_cue_xeno_with(): cue on-loom, with off-loom dictionary in handle.
       */
         u3_weak
         u3s_cue_xeno_with(u3_cue_xeno* sil_u,
                           c3_d         len_d,
                           const c3_y*  byt_y);
 
-      /* u3s_cue_xeno_init(): dispose cue_xeno handle.
+      /* u3s_cue_xeno_done(): dispose cue_xeno handle.
       */
         void
         u3s_cue_xeno_done(u3_cue_xeno* sil_u);

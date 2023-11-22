@@ -41,9 +41,9 @@ _n_hint(u3_noun zep,
       return _n_nock_on(bus, nex);
     }
 
-    case c3__hunk:
-    case c3__lose:
-    case c3__mean:
+    case c3__hunk:      // scry failure
+    case c3__lose:      // injected by ourselves to record that we skipped stack frames; not strictly necessary but we should keep it (it's operative one layer up)
+    case c3__mean:      // sigbar / sigcab / sigzap (but only at type layer)     either an atom or a trap tank
     case c3__spot: {
       u3_noun tac = u3nc(zep, hod);
       u3_noun pro;
@@ -68,8 +68,9 @@ _n_hint(u3_noun zep,
         }
       }
 #endif
-      pro = _n_nock_on(bus, nex);
-      u3t_drop();
+      pro = _n_nock_on(bus, nex);     // run eagerly
+      u3t_drop();                     // nothing happened so pop it
+                          // this is called the mean stack
 
       return pro;
     }
@@ -335,16 +336,16 @@ _n_nock_on(u3_noun bus, u3_noun fol)
         {
           u3_noun zep, hod, nex;
 
-          if ( c3y == u3du(p_gal) ) {
+          if ( c3y == u3du(p_gal) ) {   // atom tag, formula, rest of code
             u3_noun b_gal = u3h(p_gal);
             u3_noun c_gal = u3t(p_gal);
             u3_noun d_gal = q_gal;
 
-            zep = u3k(b_gal);
-            hod = _n_nock_on(u3k(bus), u3k(c_gal));
-            nex = u3k(d_gal);
+            zep = u3k(b_gal);   // tag
+            hod = _n_nock_on(u3k(bus), u3k(c_gal)); // result of computing c_gal (clue formula) (dynamic nock formula)
+            nex = u3k(d_gal);   // rest of the code (code that hint wraps)
           }
-          else {
+          else {    // simple hint like %bout
             u3_noun b_gal = p_gal;
             u3_noun c_gal = q_gal;
 
@@ -354,7 +355,7 @@ _n_nock_on(u3_noun bus, u3_noun fol)
           }
 
           u3a_lose(fol);
-          return _n_hint(zep, hod, bus, nex);
+          return _n_hint(zep, hod, bus, nex);   // bus is subject (always); nex is thing to do next
         }
       }
 
@@ -374,7 +375,7 @@ _n_nock_on(u3_noun bus, u3_noun fol)
           //
           //  replace with proper error stack push
           //
-          u3t_push(u3nt(c3__hunk, ref, gof));
+          u3t_push(u3nt(c3__hunk, ref, gof));     // scry (this is nock 12 now) will do this when it fails; non-trivial don't
           return u3m_bail(c3__exit);
         }
         else {
@@ -1085,10 +1086,10 @@ _n_bint(u3_noun* ops, u3_noun hif, u3_noun nef, c3_o los_o, c3_o tel_o)
       case c3__mean:
       case c3__spot:
         tot_w += _n_comp(ops, hod, c3n, c3n);
-        ++tot_w; _n_emit(ops, u3nc(BUSH, zep)); // overflows to SUSH
-        tot_w += _n_comp(ops, nef, los_o, c3n);
-        ++tot_w; _n_emit(ops, DROP);
-        break;
+        ++tot_w; _n_emit(ops, u3nc(BUSH, zep)); // overflows to SUSH    emit the tag
+        tot_w += _n_comp(ops, nef, los_o, c3n);   // compile nef; dynamic hint formula
+        ++tot_w; _n_emit(ops, DROP);              // pop the stack
+        break;                            // 
 
       case c3__live:
         tot_w += _n_comp(ops, hod, c3n, c3n);
@@ -2519,13 +2520,16 @@ _n_burn(u3n_prog* pog_u, u3_noun bus, c3_ys mov, c3_ys off)
       x = _n_resh(pog, &ip_w);
       goto cush_in;
 
-    do_bush:
-      x = pog[ip_w++];
+    do_bush:                                // linked from above
+      x = pog[ip_w++];                      // index into program literals array
     cush_in:
       x = u3k(pog_u->lit_u.non[x]);
-      o = _n_pep(mov, off);
-      u3t_push(u3nc(x, o));
-      BURN();
+      o = _n_pep(mov, off);                 // pop the stack
+      u3t_push(u3nc(x, o));                 // tag was in program literals array; 'o' is the data from the hint formula already on the stack (having been first computed)
+      BURN();                               // continue the interpreter loop
+                                            // each opcode is legible to the cpu as a specific goto, so the CPU branch predictor can predict which opcode will follow, because each one has an indirect jump site
+                                            // each label either goes directly to another opcode or calls burn to continue execution
+                                            // read program counter; increment program counter; read next opcode; go to the code indexed by opcode
 
     do_drop:
       u3t_drop();

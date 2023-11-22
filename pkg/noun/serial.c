@@ -636,7 +636,7 @@ u3s_cue_xeno_init(void)
   return u3s_cue_xeno_init_with(ur_fib10, ur_fib11);
 }
 
-/* u3s_cue_xeno_init(): cue on-loom, with off-loom dictionary in handle.
+/* u3s_cue_xeno_with(): cue on-loom, with off-loom dictionary in handle.
 */
 u3_weak
 u3s_cue_xeno_with(u3_cue_xeno* sil_u,
@@ -652,7 +652,7 @@ u3s_cue_xeno_with(u3_cue_xeno* sil_u,
   return som;
 }
 
-/* u3s_cue_xeno_init(): dispose cue_xeno handle.
+/* u3s_cue_xeno_done(): dispose cue_xeno handle.
 */
 void
 u3s_cue_xeno_done(u3_cue_xeno* sil_u)

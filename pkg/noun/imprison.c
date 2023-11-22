@@ -14,10 +14,13 @@
 static c3_w
 _ci_slab_size(c3_g met_g, c3_d len_d)
 {
+  //  get number of bits in slab
   c3_d bit_d = len_d << met_g;
+  //  get number of words required to hold that many bits
   c3_d wor_d = (bit_d + 0x1f) >> 5;
   c3_w wor_w = (c3_w)wor_d;
 
+  //  check for overflow
   if (  (wor_w != wor_d)
      || (len_d != (bit_d >> met_g)) )
   {
@@ -121,6 +124,7 @@ u3i_slab_bare(u3i_slab* sab_u, c3_g met_g, c3_d len_d)
 {
   u3t_on(mal_o);
   {
+    //  get number of words for slab to hold bloq
     c3_w wor_w = _ci_slab_size(met_g, len_d);
 
     //  if we only need one word, use the static storage in [sab_u]

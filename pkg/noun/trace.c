@@ -37,7 +37,7 @@ static c3_w _file_cnt_w = 0;
 void
 u3t_push(u3_noun mon)
 {
-  u3R->bug.tax = u3nc(mon, u3R->bug.tax);
+  u3R->bug.tax = u3nc(mon, u3R->bug.tax);     // cons list trace stack on road
 }
 
 /* u3t_mean(): push `[%mean roc]` on trace stack.
@@ -53,7 +53,7 @@ u3t_mean(u3_noun roc)
 void
 u3t_drop(void)
 {
-  u3_assert(_(u3du(u3R->bug.tax)));
+  u3_assert(_(u3du(u3R->bug.tax)));     // uncons, set to tail, throw away head
   {
     u3_noun tax = u3R->bug.tax;
 
