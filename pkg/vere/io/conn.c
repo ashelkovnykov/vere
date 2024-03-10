@@ -484,7 +484,7 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
       //  current ship.
       //
       case c3__whom: {
-        res = u3nc(u3_nul, u3i_chubs(2, pir_u->who_d));
+        res = u3nc(u3_nul, u3dc("scot", c3__p, u3i_chubs(2, pir_u->who_d)));
       }
     }
   }
