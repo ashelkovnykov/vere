@@ -1438,7 +1438,7 @@ _cw_eval(c3_i argc, c3_c* argv[])
         u3z(cop);
       }
     }
-    pre_c = u3m_pretty(som);
+    pre_c = u3m_pretty_conn(som);
     fprintf(stdout, "%s\n", pre_c);
     c3_free(pre_c);
     u3z(som);

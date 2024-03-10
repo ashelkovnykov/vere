@@ -160,6 +160,11 @@
         c3_c*
         u3m_pretty(u3_noun som);
 
+      /* u3m_pretty_conn(): dumb prettyprint to string (but no @ta).  RETAIN.
+      */
+        c3_c*
+        u3m_pretty_conn(u3_noun som);
+
       /* u3m_pretty_path(): prettyprint a path to string.  RETAIN.
       */
         c3_c*

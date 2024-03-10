@@ -2439,7 +2439,7 @@ _http_io_info(u3_auto* car_u)
   while ( 0 != htp_u ) {
     res = u3nc(
       u3_pier_mass(
-        u3dc("scot", c3__uv, htp_u->sev_l),
+        htp_u->sev_l,
         u3i_list(
           u3_pier_mase("secure",      htp_u->sec),
           u3_pier_mase("loopback",    htp_u->lop),

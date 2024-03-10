@@ -1596,6 +1596,89 @@ _cm_in_pretty(u3_noun som, c3_o sel_o, c3_c* str_c)
   }
 }
 
+/* _cm_in_pretty_conn: measure/cut prettyprint (without @ta).
+*/
+static c3_w
+_cm_in_pretty_conn(u3_noun som, c3_o sel_o, c3_c* str_c)
+{
+  if ( _(u3du(som)) ) {
+    c3_w sel_w, one_w, two_w;
+
+    sel_w = 0;
+    if ( _(sel_o) ) {
+      if ( str_c ) { *(str_c++) = '['; }
+      sel_w += 1;
+    }
+
+    one_w = _cm_in_pretty_conn(u3h(som), c3y, str_c);
+    if ( str_c ) {
+      str_c += one_w;
+      *(str_c++) = ' ';
+    }
+    two_w = _cm_in_pretty_conn(u3t(som), c3n, str_c);
+    if ( str_c ) { str_c += two_w; }
+
+    if ( _(sel_o) ) {
+      if ( str_c ) { *(str_c++) = ']'; }
+      sel_w += 1;
+    }
+    return one_w + two_w + 1 + sel_w;
+  }
+  else {
+    if ( som < 65536 ) {
+      c3_c buf_c[6];
+      c3_w len_w;
+
+      snprintf(buf_c, 6, "%d", som);
+      len_w = strlen(buf_c);
+
+      if ( str_c ) { strcpy(str_c, buf_c); str_c += len_w; }
+      return len_w;
+    }
+    else {
+      c3_w len_w = u3r_met(3, som);
+
+      if ( _(_cm_is_tas(som, len_w)) ) {
+        c3_w len_w = u3r_met(3, som);
+
+        if ( str_c ) {
+          *(str_c++) = '%';
+          u3r_bytes(0, len_w, (c3_y *)str_c, som);
+          str_c += len_w;
+        }
+        return len_w + 1;
+      }
+      else {
+        c3_w len_w = u3r_met(3, som);
+        c3_c *buf_c = c3_malloc(2 + (2 * len_w) + 1);
+        c3_w i_w = 0;
+        c3_w a_w = 0;
+
+        buf_c[a_w++] = '0';
+        buf_c[a_w++] = 'x';
+
+        for ( i_w = 0; i_w < len_w; i_w++ ) {
+          c3_y c_y = u3r_byte(len_w - (i_w + 1), som);
+
+          if ( (i_w == 0) && (c_y <= 0xf) ) {
+            buf_c[a_w++] = _cm_hex(c_y);
+          } else {
+            buf_c[a_w++] = _cm_hex(c_y >> 4);
+            buf_c[a_w++] = _cm_hex(c_y & 0xf);
+          }
+        }
+        buf_c[a_w] = 0;
+        len_w = a_w;
+
+        if ( str_c ) { strcpy(str_c, buf_c); str_c += len_w; }
+
+        c3_free(buf_c);
+        return len_w;
+      }
+    }
+  }
+}
+
 /* u3m_pretty(): dumb prettyprint to string.
 */
 c3_c*
@@ -1605,6 +1688,19 @@ u3m_pretty(u3_noun som)
   c3_c* pre_c = c3_malloc(len_w + 1);
 
   _cm_in_pretty(som, c3y, pre_c);
+  pre_c[len_w] = 0;
+  return pre_c;
+}
+
+/* u3m_pretty_conn(): dumb prettyprint to string (but no @ta).
+*/
+c3_c*
+u3m_pretty_conn(u3_noun som)
+{
+  c3_w len_w = _cm_in_pretty_conn(som, c3y, 0);
+  c3_c* pre_c = c3_malloc(len_w + 1);
+
+  _cm_in_pretty_conn(som, c3y, pre_c);
   pre_c[len_w] = 0;
   return pre_c;
 }
