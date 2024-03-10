@@ -435,91 +435,95 @@ static u3_noun
 _conn_read_peel(u3_conn* con_u, u3_noun dat)
 {
   u3_pier*  pir_u = con_u->car_u.pir_u;
-  u3_noun   i_dat, t_dat, it_dat, tt_dat;
-  u3_noun   res;
+  u3_noun   i_dat, t_dat;
+  u3_noun   res = u3_nul;
 
-  if ( c3n == u3r_cell(dat, &i_dat, &t_dat) ) {
-    res = u3_nul;
+  if ( c3n == u3r_cell(dat, &i_dat, &t_dat) ||
+       !_(u3a_is_cat(i_dat)) )
+  {
+    goto peel_done;
   }
-  else if ( u3_nul == t_dat ) {
-    //  zero-argument requests.
+
+  switch (i_dat) {
+    //  command list
     //
-    switch (i_dat) {
-      default: {
-        res = u3_nul;
-      } break;
-      //  command list.
-      //
-      case c3__help: {
-        res = u3nc(
-          u3_nul,
-          u3i_list(u3nc(c3__help, u3_nul), u3nc(c3__info, u3_nul),
-                   u3nc(c3__khan, u3_nul), u3nc(c3__live, u3_nul),
-                   u3nc(c3__mass, u3_nul),
-                   u3nc(c3__port,
-                        u3i_list(c3__ames, c3__htls, c3__http, u3_none)),
-                   u3nc(c3__v, u3_nul), u3nc(c3__who, u3_nul),
-                   u3_none));
-      } break;
-      //  simple health check.
-      //
-      case c3__live: {
-        res = u3nc(u3_nul, pir_u->liv_o);
-      } break;
-      //  true iff the %khan vane is live (meaning %fyrd is supported.)
-      //
-      case c3__khan: {
-        res = u3nc(u3_nul, con_u->kan_o);
-      } break;
-      //  runtime metrics.
-      //
-      case c3__info: {
-        res = u3nc(u3_nul, u3_pier_info(pir_u));
-      } break;
-      //  vere version.
-      //
-      case c3__vere: {
-        res = u3nc(u3_nul, u3i_string(URBIT_VERSION));
-      } break;
-      //  current ship.
-      //
-      case c3__whom: {
-        res = u3nc(u3_nul, u3dc("scot", c3__p, u3i_chubs(2, pir_u->who_d)));
+    case c3__help: {
+      if ( u3_nul != t_dat ) goto peel_done;
+      res = u3nc(
+        u3_nul,
+        u3i_list(
+          u3nc(c3__help, u3_nul),
+          u3nc(c3__vere, u3_nul),
+          u3nc(c3__live, u3_nul),
+          u3nc(c3__khan, u3_nul),
+          u3nc(c3__whom, u3_nul),
+          u3nc(c3__port, u3i_list(
+            c3__ames,
+            c3__htls,
+            c3__http,
+            u3_none)),
+          u3nc(c3__info, u3_nul),
+          u3_none));
+    } break;
+    //  vere version
+    //
+    case c3__vere: {
+      if ( u3_nul != t_dat ) goto peel_done;
+      res = u3nc(u3_nul, u3i_string(URBIT_VERSION));
+    } break;
+    //  true iff all drivers are live
+    //
+    case c3__live: {
+      if ( u3_nul != t_dat ) goto peel_done;
+      res = u3nc(u3_nul, pir_u->liv_o);
+    } break;
+    //  true iff the %khan vane is live (meaning %fyrd is supported)
+    //
+    case c3__khan: {
+      if ( u3_nul != t_dat ) goto peel_done;
+      res = u3nc(u3_nul, con_u->kan_o);
+    } break;
+    //  azimuth point currently running
+    //
+    case c3__whom: {
+      if ( u3_nul != t_dat ) goto peel_done;
+      res = u3nc(u3_nul, u3dc("scot", c3__p, u3i_chubs(2, pir_u->who_d)));
+    } break;
+    //  driver ports
+    //
+    case c3__port: {
+      u3_noun it_dat, tt_dat;
+
+      if ( c3n == u3r_cell(t_dat, &it_dat, &tt_dat) ||
+          !_(u3a_is_cat(it_dat)) ||
+          (u3_nul != tt_dat) )
+      {
+        goto peel_done;
       }
-    }
-  }
-  else if ( c3n == u3r_cell(t_dat, &it_dat, &tt_dat) ) {
-    res = u3_nul;
-  }
-  else if ( u3_nul == tt_dat ) {
-    //  one-argument requests.
+      
+      switch (it_dat) {
+        case c3__ames: {
+          res = u3nc(u3_nul, pir_u->por_s);
+        } break;
+        case c3__htls: {
+          res = u3nc(u3_nul, pir_u->pes_s);
+        } break;
+        case c3__http: {
+          res = u3nc(u3_nul, pir_u->per_s);
+        } break;
+      }
+    } break;
+    //  assorted runtime metrics
     //
-    switch (i_dat) {
-      default: {
-        res = u3_nul;
-      } break;
-      case c3__port: {
-        switch (it_dat) {
-          default: {
-            res = u3_nul;
-          } break;
-          case c3__ames: {
-            res = u3nc(u3_nul, pir_u->por_s);
-          } break;
-          case c3__htls: {
-            res = u3nc(u3_nul, pir_u->pes_s);
-          } break;
-          case c3__http: {
-            res = u3nc(u3_nul, pir_u->per_s);
-          } break;
-        }
-      } break;
-    }
+    case c3__info: {
+      if ( u3_nul != t_dat ) goto peel_done;
+      res = u3nc(u3_nul, u3_pier_info(pir_u));
+    } break;
   }
-  else {
-    res = u3_nul;
-  }
-  u3z(dat); return res;
+
+peel_done:
+  u3z(dat);
+  return res;
 }
 
 /* _conn_make_cran(): alloc/init new request.
