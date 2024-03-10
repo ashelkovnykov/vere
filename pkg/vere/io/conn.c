@@ -471,13 +471,6 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
       case c3__khan: {
         res = u3nc(u3_nul, con_u->kan_o);
       } break;
-      //  |mass output
-      //
-      case c3__mass: {
-        //  TODO  |mass
-        //
-        res = u3_nul;
-      } break;
       //  runtime metrics.
       //
       case c3__info: {
