@@ -478,12 +478,12 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
       } break;
       //  vere version.
       //
-      case c3__v: {
+      case c3__vere: {
         res = u3nc(u3_nul, u3i_string(URBIT_VERSION));
       } break;
       //  current ship.
       //
-      case c3__who: {
+      case c3__whom: {
         res = u3nc(u3_nul, u3i_chubs(2, pir_u->who_d));
       }
     }
