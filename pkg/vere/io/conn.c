@@ -459,6 +459,7 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
           u3nc(c3__live, u3_nul),
           u3nc(c3__khan, u3_nul),
           u3nc(c3__whom, u3_nul),
+          u3nc(c3__form, u3_nul),
           u3nc(c3__port, u3i_list(
             c3__ames,
             c3__htls,
@@ -491,6 +492,35 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
     case c3__whom: {
       if ( u3_nul != t_dat ) goto peel_done;
       res = u3nc(u3_nul, u3dc("scot", c3__p, u3i_chubs(2, pir_u->who_d)));
+    } break;
+    //  status of ship (e.g. booting, replaying, live, etc.)
+    //
+    case c3__form: {
+      if ( u3_nul != t_dat ) goto peel_done;
+
+      c3_w sat_w;
+      switch (pir_u->sat_e) {
+        default: {
+          sat_w = c3__odd;
+        } break;
+        case u3_psat_init: {
+          sat_w = c3__init;
+        } break;
+        case u3_psat_boot: {
+          sat_w = c3__boot;
+        } break;
+        case u3_psat_play: {
+          sat_w = c3__play;
+        } break;
+        case u3_psat_work: {
+          sat_w = c3__work;
+        } break;
+        case u3_psat_done: {
+          sat_w = c3__done;
+        } break;
+      }
+
+      res = u3nc(u3_nul, sat_w);
     } break;
     //  driver ports
     //

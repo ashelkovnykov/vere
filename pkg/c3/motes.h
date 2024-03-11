@@ -827,6 +827,7 @@
 #   define c3__nz     c3_s2('n','z')
 #   define c3__o      c3_s1('o')
 #   define c3__oak    c3_s3('o','a','k')
+#   define c3__odd    c3_s3('o','d','d')
 #   define c3__of     c3_s2('o','f')
 #   define c3__off    c3_s3('o','f','f')
 #   define c3__ogre   c3_s4('o','g','r','e')
