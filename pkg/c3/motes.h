@@ -1237,6 +1237,7 @@
 #   define c3__url    c3_s3('u','r','l')
 #   define c3__urth   c3_s4('u','r','t','h')
 #   define c3__use    c3_s3('u','s','e')
+#   define c3__used   c3_s4('u','s','e','d')
 #   define c3__ut     c3_s2('u','t')
 #   define c3__uv     c3_s2('u','v')
 #   define c3__uw     c3_s2('u','w')

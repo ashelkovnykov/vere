@@ -101,6 +101,8 @@
 #include <inttypes.h>
 #include <sys/stat.h>
 
+#include "allocate.h"
+#include "events.h"
 #include "noun.h"
 #include "uv.h"
 #include "version.h"
@@ -462,6 +464,7 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
             c3__htls,
             c3__http,
             u3_none)),
+          u3nc(c3__mass, u3_nul),
           u3nc(c3__info, u3_nul),
           u3_none));
     } break;
@@ -512,6 +515,24 @@ _conn_read_peel(u3_conn* con_u, u3_noun dat)
           res = u3nc(u3_nul, pir_u->per_s);
         } break;
       }
+    } break;
+    //  pier size metrics
+    //
+    case c3__mass: {
+      if ( u3_nul != t_dat ) goto peel_done;
+
+      c3_d use_d = (((c3_d)u3a_heap(u3R)) << 2 + ((c3_d)u3a_temp(u3R)) << 2);
+      c3_d fre_d = (c3_d)u3a_idle(u3R) << 2;
+      // this undershoots by a bit (~1MiB)
+      c3_d tot_d = use_d + fre_d;
+
+      res = u3nc(
+        u3_nul,
+        u3i_list(
+          u3nc(c3__pier, u3i_chub(tot_d)),
+          u3nc(c3__used, u3i_chub(use_d)),
+          u3nc(c3__free, u3i_chub(fre_d)),
+          u3_none));
     } break;
     //  assorted runtime metrics
     //
